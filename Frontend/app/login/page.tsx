@@ -72,11 +72,33 @@ export default function LoginPage() {
   });
 
   async function onLoginSubmit(values: z.infer<typeof loginSchema>) {
+    console.log('Hello')
+    console.log(values)
     try {
       setIsLoading(true);
-      console.log(values);
-      // This would be replaced with actual authentication logic
-      await new Promise(resolve => setTimeout(resolve, 1500));
+  
+      const response = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+  
+      const data = await response.json();
+      console.log(data);
+  
+      if (!response.ok) {
+        throw new Error(data.detail || "Login failed");
+      }
+  
+      // Save token
+      localStorage.setItem("token", data.access_token);
+  
+      // Redirect on success
       router.push("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
@@ -84,6 +106,8 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   }
+  
+  
 
   async function onSignupSubmit(values: z.infer<typeof signupSchema>) {
     try {
