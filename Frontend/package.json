@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backend": "cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:full": "concurrently \"npm run backend\" \"npm run dev\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -39,6 +41,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tanstack/react-query": "^5.28.4",
+    "@tanstack/react-query-devtools": "^5.81.5",
     "@tanstack/react-table": "^8.11.8",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
@@ -48,6 +51,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "concurrently": "^8.2.2",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "eslint": "8.49.0",

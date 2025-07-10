@@ -32,36 +32,36 @@ export function DashboardSidebar({ onNavigate }: SidebarProps) {
       href: "/dashboard",
       icon: <Home className="h-5 w-5" />,
     },
-    {
-      title: "Transactions",
-      href: "/dashboard/transactions",
-      icon: <CreditCard className="h-5 w-5" />,
-    },
-    {
-      title: "Income",
-      href: "/dashboard/income",
-      icon: <DollarSign className="h-5 w-5" />,
-    },
-    {
-      title: "Expenses",
-      href: "/dashboard/expenses",
-      icon: <Wallet className="h-5 w-5" />,
-    },
-    {
-      title: "Reports",
-      href: "/dashboard/reports",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-    {
-      title: "Budget",
-      href: "/dashboard/budget",
-      icon: <PieChart className="h-5 w-5" />,
-    },
-    {
-      title: "Settings",
-      href: "/dashboard/settings",
-      icon: <Settings className="h-5 w-5" />,
-    },
+    // {
+    //   title: "Transactions",
+    //   href: "/dashboard/transactions",
+    //   icon: <CreditCard className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Income",
+    //   href: "/dashboard/income",
+    //   icon: <DollarSign className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Expenses",
+    //   href: "/dashboard/expenses",
+    //   icon: <Wallet className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Reports",
+    //   href: "/dashboard/reports",
+    //   icon: <BarChart3 className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Budget",
+    //   href: "/dashboard/budget",
+    //   icon: <PieChart className="h-5 w-5" />,
+    // },
+    // {
+    //   title: "Settings",
+    //   href: "/dashboard/settings",
+    //   icon: <Settings className="h-5 w-5" />,
+    // },
   ];
 
   return (

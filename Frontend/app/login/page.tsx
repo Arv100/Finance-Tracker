@@ -21,6 +21,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { toast } from "@/hooks/use-toast";
+import { authApi } from "@/lib/api";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -30,8 +32,10 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
+  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  fullName: z.string().optional(),
   terms: z.literal(true, {
     errorMap: () => ({ message: "You must accept the terms and conditions" }),
   }),
@@ -65,59 +69,72 @@ export default function LoginPage() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
+      username: "",
       password: "",
       confirmPassword: "",
+      fullName: "",
       terms: false,
     },
   });
 
   async function onLoginSubmit(values: z.infer<typeof loginSchema>) {
-    console.log('Hello')
-    console.log(values)
     try {
       setIsLoading(true);
-  
-      const response = await fetch("http://localhost:8000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        }),
+      
+      await authApi.login({
+        email: values.email,
+        password: values.password,
       });
-  
-      const data = await response.json();
-      console.log(data);
-  
-      if (!response.ok) {
-        throw new Error(data.detail || "Login failed");
-      }
-  
-      // Save token
-      localStorage.setItem("token", data.access_token);
-  
-      // Redirect on success
+
+      toast({
+        title: "Login successful",
+        description: "Welcome back to FinTrack!",
+      });
+
       router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      toast({
+        title: "Login failed",
+        description: error.response?.data?.detail || "Invalid email or password",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   }
-  
-  
 
   async function onSignupSubmit(values: z.infer<typeof signupSchema>) {
     try {
       setIsLoading(true);
-      console.log(values);
-      // This would be replaced with actual registration logic
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Register user
+      await authApi.register({
+        email: values.email,
+        username: values.username,
+        password: values.password,
+        full_name: values.fullName || undefined,
+      });
+
+      // Auto-login after registration
+      await authApi.login({
+        email: values.email,
+        password: values.password,
+      });
+
+      toast({
+        title: "Account created successfully",
+        description: "Welcome to FinTrack!",
+      });
+
       router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup error:", error);
+      toast({
+        title: "Registration failed",
+        description: error.response?.data?.detail || "Failed to create account",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -265,6 +282,34 @@ export default function LoginPage() {
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <Input placeholder="you@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={signupForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="johndoe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={signupForm.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John Doe" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

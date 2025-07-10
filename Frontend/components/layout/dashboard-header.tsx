@@ -17,14 +17,43 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Bell, LogOut, Menu, Settings, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { authApi } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export function DashboardHeader() {
   const router = useRouter();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // Fetch current user data
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: authApi.getCurrentUser,
+    retry: false,
+  });
+
   const handleLogout = () => {
-    // This would be replaced with actual logout logic
+    authApi.logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
     router.push("/");
+  };
+
+  const getUserInitials = (user: any) => {
+    if (user?.full_name) {
+      return user.full_name
+        .split(' ')
+        .map((name: string) => name[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (user?.username) {
+      return user.username.slice(0, 2).toUpperCase();
+    }
+    return 'U';
   };
 
   return (
@@ -61,16 +90,20 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src="" alt="User" />
+                  <AvatarFallback>{getUserInitials(currentUser)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">John Doe</p>
-                  <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+                  <p className="text-sm font-medium">
+                    {currentUser?.full_name || currentUser?.username || 'User'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {currentUser?.email || 'user@example.com'}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
