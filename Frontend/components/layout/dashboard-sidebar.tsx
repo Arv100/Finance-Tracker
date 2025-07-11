@@ -68,7 +68,9 @@ export function DashboardSidebar({ onNavigate }: SidebarProps) {
     <aside className="bg-background h-screen border-r border-border">
       <div className="flex h-full flex-col px-3 py-4">
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Dashboard</h2>
+          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+            Dashboard
+          </h2>
           <div className="space-y-1">
             {navItems.map((item) => (
               <Link

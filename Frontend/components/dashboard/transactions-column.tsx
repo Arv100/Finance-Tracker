@@ -24,16 +24,13 @@ import {
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { transactionApi } from "@/lib/api";
 
-
-
 export const transactionsColumns = ({
   onEdit,
-  onDelete
+  onDelete,
 }: {
   onEdit: (transaction: Transaction) => void;
   onDelete: () => Promise<void>;
 }): ColumnDef<Transaction>[] => [
-
   {
     accessorKey: "date",
     header: "Date",
@@ -68,9 +65,7 @@ export const transactionsColumns = ({
     header: "Account",
     cell: ({ row }) => {
       return (
-        <div className="text-muted-foreground">
-          {row.getValue("account")}
-        </div>
+        <div className="text-muted-foreground">{row.getValue("account")}</div>
       );
     },
   },
@@ -156,16 +151,15 @@ export const transactionsColumns = ({
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-  className="text-red-600"
-  onClick={async () => {
-    await transactionApi.delete(transaction.id);
-    await onDelete();
-  }}
->
-  <Trash className="mr-2 h-4 w-4" />
-  Delete
-</DropdownMenuItem>
-
+              className="text-red-600"
+              onClick={async () => {
+                await transactionApi.delete(transaction.id);
+                await onDelete();
+              }}
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

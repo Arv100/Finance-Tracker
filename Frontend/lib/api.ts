@@ -1,46 +1,46 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Token management
 const getToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('access_token');
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("access_token");
   }
   return null;
 };
 
 const setToken = (token: string) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('access_token', token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("access_token", token);
   }
 };
 
 const getRefreshToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('refresh_token');
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("refresh_token");
   }
   return null;
 };
 
 const setRefreshToken = (token: string) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('refresh_token', token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("refresh_token", token);
   }
 };
 
 const removeTokens = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
   }
 };
 
@@ -65,11 +65,15 @@ api.interceptors.response.use(
       const refreshToken = getRefreshToken();
       if (refreshToken) {
         try {
-          const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
-            refresh_token: refreshToken,
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/api/auth/refresh`,
+            {
+              refresh_token: refreshToken,
+            }
+          );
 
-          const { access_token, refresh_token: newRefreshToken } = response.data;
+          const { access_token, refresh_token: newRefreshToken } =
+            response.data;
           setToken(access_token);
           setRefreshToken(newRefreshToken);
 
@@ -79,20 +83,20 @@ api.interceptors.response.use(
         } catch (refreshError) {
           // Refresh failed, redirect to login
           removeTokens();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
           }
           return Promise.reject(refreshError);
         }
       } else {
         // No refresh token, redirect to login
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
         }
       }
     }
 
-    console.error('API Error:', error.response?.data || error.message);
+    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -134,8 +138,8 @@ export interface Transaction {
   description: string;
   category: string;
   amount: number;
-  type: 'income' | 'expense';
-  status: 'completed' | 'pending';
+  type: "income" | "expense";
+  status: "completed" | "pending";
   account: string;
   created_at: string;
   updated_at?: string;
@@ -146,8 +150,8 @@ export interface TransactionCreate {
   description: string;
   category: string;
   amount: number;
-  type: 'income' | 'expense';
-  status?: 'completed' | 'pending';
+  type: "income" | "expense";
+  status?: "completed" | "pending";
   account: string;
 }
 
@@ -186,18 +190,18 @@ export interface DashboardStats {
 // Authentication API
 export const authApi = {
   register: async (userData: UserCreate): Promise<User> => {
-    const response = await api.post('/api/auth/register', userData);
+    const response = await api.post("/api/auth/register", userData);
     return response.data;
   },
 
   login: async (credentials: UserLogin): Promise<Token> => {
-    const response = await api.post('/api/auth/login', credentials);
+    const response = await api.post("/api/auth/login", credentials);
     const tokenData = response.data;
-    
+
     // Store tokens
     setToken(tokenData.access_token);
     setRefreshToken(tokenData.refresh_token);
-    
+
     return tokenData;
   },
 
@@ -206,17 +210,17 @@ export const authApi = {
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const response = await api.get('/api/auth/me');
+    const response = await api.get("/api/auth/me");
     return response.data;
   },
 
   refreshToken: async (): Promise<Token> => {
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
-      throw new Error('No refresh token available');
+      throw new Error("No refresh token available");
     }
 
-    const response = await api.post('/api/auth/refresh', {
+    const response = await api.post("/api/auth/refresh", {
       refresh_token: refreshToken,
     });
 
@@ -235,7 +239,7 @@ export const authApi = {
 // Transaction API
 export const transactionApi = {
   getAll: async (): Promise<Transaction[]> => {
-    const response = await api.get('/api/transactions');
+    const response = await api.get("/api/transactions");
     return response.data;
   },
 
@@ -245,11 +249,14 @@ export const transactionApi = {
   },
 
   create: async (transaction: TransactionCreate): Promise<Transaction> => {
-    const response = await api.post('/api/transactions', transaction);
+    const response = await api.post("/api/transactions", transaction);
     return response.data;
   },
 
-  update: async (id: string, transaction: TransactionCreate): Promise<Transaction> => {
+  update: async (
+    id: string,
+    transaction: TransactionCreate
+  ): Promise<Transaction> => {
     const response = await api.put(`/api/transactions/${id}`, transaction);
     return response.data;
   },
@@ -262,26 +269,28 @@ export const transactionApi = {
 // Dashboard API
 export const dashboardApi = {
   getStats: async (): Promise<DashboardStats> => {
-    const response = await api.get('/api/dashboard/stats');
+    const response = await api.get("/api/dashboard/stats");
     return response.data;
   },
 
   getSummary: async (): Promise<FinancialSummary> => {
-    const response = await api.get('/api/dashboard/summary');
-    console.log(response.data)
+    const response = await api.get("/api/dashboard/summary");
+    console.log(response.data);
     return response.data;
   },
 };
 
 // Upload API
 export const uploadApi = {
-  uploadFile: async (file: File): Promise<{ message: string; processed_count: number }> => {
+  uploadFile: async (
+    file: File
+  ): Promise<{ message: string; processed_count: number }> => {
     const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await api.post('/api/upload', formData, {
+    formData.append("file", file);
+
+    const response = await api.post("/api/upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;

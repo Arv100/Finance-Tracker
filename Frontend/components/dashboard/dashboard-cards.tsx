@@ -26,7 +26,13 @@ interface StatCardProps {
   icon: React.ReactNode;
 }
 
-export function StatCard({ title, value, description, trend, icon }: StatCardProps) {
+export function StatCard({
+  title,
+  value,
+  description,
+  trend,
+  icon,
+}: StatCardProps) {
   return (
     <Card className="h-full flex flex-col justify-between">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -43,7 +49,15 @@ export function StatCard({ title, value, description, trend, icon }: StatCardPro
           ) : (
             <ArrowRightIcon className="mr-1 h-3 w-3 text-yellow-500 animate-pulse" />
           )}
-          <span className={trend > 0 ? "text-green-500" : trend < 0 ? "text-red-500" : "text-yellow-500"}>
+          <span
+            className={
+              trend > 0
+                ? "text-green-500"
+                : trend < 0
+                ? "text-red-500"
+                : "text-yellow-500"
+            }
+          >
             {Math.abs(trend)}%
           </span>
           <span className="ml-1">{description}</span>
@@ -77,9 +91,9 @@ export function DashboardCards({ stats }: DashboardCardsProps) {
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(amount);
   };

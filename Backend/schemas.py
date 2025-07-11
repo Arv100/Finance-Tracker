@@ -3,14 +3,17 @@ from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 
+
 # Enums
 class TransactionType(str, Enum):
     income = "income"
     expense = "expense"
 
+
 class TransactionStatus(str, Enum):
     completed = "completed"
     pending = "pending"
+
 
 # User Schemas
 class UserBase(BaseModel):
@@ -18,30 +21,38 @@ class UserBase(BaseModel):
     username: str
     full_name: Optional[str] = None
 
+
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=6, description="Password must be at least 6 characters long")
+    password: str = Field(
+        ..., min_length=6, description="Password must be at least 6 characters long"
+    )
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class UserResponse(UserBase):
     id: int
     is_active: bool
     is_verified: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
+
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
     username: Optional[str] = None
 
+
 class PasswordChange(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=6)
+
 
 # Token Schemas
 class Token(BaseModel):
@@ -50,8 +61,10 @@ class Token(BaseModel):
     token_type: str = "bearer"
     expires_in: int
 
+
 class TokenRefresh(BaseModel):
     refresh_token: str
+
 
 # Transaction Schemas
 class TransactionBase(BaseModel):
@@ -63,20 +76,24 @@ class TransactionBase(BaseModel):
     status: TransactionStatus = TransactionStatus.completed
     account: str
 
+
 class TransactionCreate(TransactionBase):
     pass
 
+
 class TransactionUpdate(TransactionBase):
     pass
+
 
 class TransactionResponse(TransactionBase):
     id: str
     user_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
+
 
 # Dashboard Schemas
 class CategoryBreakdown(BaseModel):
@@ -85,10 +102,12 @@ class CategoryBreakdown(BaseModel):
     percentage: float
     color: str
 
+
 class MonthlyData(BaseModel):
     month: str
     income: float
     expenses: float
+
 
 class FinancialSummary(BaseModel):
     total_income: float
@@ -96,6 +115,7 @@ class FinancialSummary(BaseModel):
     balance: float
     category_summary: List[CategoryBreakdown]
     monthly_data: List[MonthlyData]
+
 
 class DashboardStats(BaseModel):
     total_balance: float
@@ -106,6 +126,7 @@ class DashboardStats(BaseModel):
     income_trend: float
     expenses_trend: float
     savings_trend: float
+
 
 # File Upload Schema
 class FileUploadResponse(BaseModel):

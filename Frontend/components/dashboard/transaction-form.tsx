@@ -86,27 +86,57 @@ export function TransactionForm({
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
           <Label htmlFor="date">Date</Label>
-          <Input type="date" name="date" value={formData.date} onChange={handleChange} required />
+          <Input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div>
           <Label htmlFor="amount">Amount</Label>
-          <Input type="number" name="amount" value={formData.amount} onChange={handleChange} required />
+          <Input
+            type="number"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            required
+          />
         </div>
       </div>
 
       <div>
         <Label htmlFor="description">Description</Label>
-        <Input type="text" name="description" value={formData.description} onChange={handleChange} required />
+        <Input
+          type="text"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          required
+        />
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
           <Label htmlFor="category">Category</Label>
-          <Input type="text" name="category" value={formData.category} onChange={handleChange} required />
+          <Input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div>
           <Label htmlFor="account">Account</Label>
-          <Input type="text" name="account" value={formData.account} onChange={handleChange} required />
+          <Input
+            type="text"
+            name="account"
+            value={formData.account}
+            onChange={handleChange}
+            required
+          />
         </div>
       </div>
 

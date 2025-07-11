@@ -28,7 +28,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -41,9 +42,9 @@ export default function DashboardPage() {
     data: transactions = [],
     isLoading: transactionsLoading,
     error: transactionsError,
-    refetch: refetchTransactions
+    refetch: refetchTransactions,
   } = useQuery({
-    queryKey: ['transactions', refreshKey],
+    queryKey: ["transactions", refreshKey],
     queryFn: transactionApi.getAll,
     retry: 3,
     retryDelay: 1000,
@@ -53,9 +54,9 @@ export default function DashboardPage() {
     data: dashboardStats,
     isLoading: statsLoading,
     error: statsError,
-    refetch: refetchStats
+    refetch: refetchStats,
   } = useQuery({
-    queryKey: ['dashboard-stats', refreshKey],
+    queryKey: ["dashboard-stats", refreshKey],
     queryFn: dashboardApi.getStats,
     retry: 3,
     retryDelay: 1000,
@@ -65,9 +66,9 @@ export default function DashboardPage() {
     data: financialSummary,
     isLoading: summaryLoading,
     error: summaryError,
-    refetch: refetchSummary
+    refetch: refetchSummary,
   } = useQuery({
-    queryKey: ['financial-summary', refreshKey],
+    queryKey: ["financial-summary", refreshKey],
     queryFn: dashboardApi.getSummary,
     retry: 3,
     retryDelay: 1000,
@@ -75,11 +76,11 @@ export default function DashboardPage() {
 
   const handleRefresh = async () => {
     try {
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
       await Promise.all([
         refetchTransactions(),
         refetchStats(),
-        refetchSummary()
+        refetchSummary(),
       ]);
       toast({
         title: "Data refreshed",
@@ -105,12 +106,11 @@ export default function DashboardPage() {
   };
 
   const handleTransactionUpdated = async () => {
-  setShowForm(false);
-  setSelectedTransaction(null);
-  await refetchTransactions(); 
-  toast({ title: "Transaction updated successfully." });
-};
-
+    setShowForm(false);
+    setSelectedTransaction(null);
+    await refetchTransactions();
+    toast({ title: "Transaction updated successfully." });
+  };
 
   if (transactionsError || statsError || summaryError) {
     return (
@@ -118,9 +118,12 @@ export default function DashboardPage() {
         <DashboardHeader />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-destructive">Error Loading Dashboard</h2>
+            <h2 className="text-2xl font-bold text-destructive">
+              Error Loading Dashboard
+            </h2>
             <p className="text-muted-foreground">
-              Failed to load dashboard data. Please check if the backend server is running.
+              Failed to load dashboard data. Please check if the backend server
+              is running.
             </p>
             <Button onClick={handleRefresh} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -193,9 +196,13 @@ export default function DashboardPage() {
           {/* Transactions Table */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold tracking-tight">Recent Transactions</h2>
+              <h2 className="text-2xl font-bold tracking-tight">
+                Recent Transactions
+              </h2>
               <Link href="/dashboard/transactions">
-                <Button variant="link" className="font-medium">View All</Button>
+                <Button variant="link" className="font-medium">
+                  View All
+                </Button>
               </Link>
             </div>
             {transactionsLoading ? (
@@ -207,18 +214,17 @@ export default function DashboardPage() {
               </div>
             ) : (
               <DataTable
-  columns={transactionsColumns({
-    onEdit: (txn) => {
-      setSelectedTransaction(txn);
-      setShowForm(true);
-    },
-    onDelete: async () => {
-      await refetchTransactions();
-    }
-  })}
-  data={transactions}
-/>
-
+                columns={transactionsColumns({
+                  onEdit: (txn) => {
+                    setSelectedTransaction(txn);
+                    setShowForm(true);
+                  },
+                  onDelete: async () => {
+                    await refetchTransactions();
+                  },
+                })}
+                data={transactions}
+              />
             )}
           </div>
         </div>
@@ -233,15 +239,18 @@ export default function DashboardPage() {
             </DialogTitle>
           </DialogHeader>
           <TransactionForm
-  initialValues={selectedTransaction || undefined}
-  mode={selectedTransaction ? "edit" : "create"}
-  onSuccess={selectedTransaction ? handleTransactionUpdated : handleTransactionAdded}
-  onClose={() => {
-    setShowForm(false);
-    setSelectedTransaction(null);
-  }}
-/>
-
+            initialValues={selectedTransaction || undefined}
+            mode={selectedTransaction ? "edit" : "create"}
+            onSuccess={
+              selectedTransaction
+                ? handleTransactionUpdated
+                : handleTransactionAdded
+            }
+            onClose={() => {
+              setShowForm(false);
+              setSelectedTransaction(null);
+            }}
+          />
         </DialogContent>
       </Dialog>
     </div>

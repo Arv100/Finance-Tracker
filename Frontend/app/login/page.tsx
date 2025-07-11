@@ -26,23 +26,33 @@ import { authApi } from "@/lib/api";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
   rememberMe: z.boolean().optional(),
 });
 
-const signupSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  fullName: z.string().optional(),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms and conditions" }),
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const signupSchema = z
+  .object({
+    email: z.string().email({ message: "Please enter a valid email address" }),
+    username: z
+      .string()
+      .min(3, { message: "Username must be at least 3 characters" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    fullName: z.string().optional(),
+    terms: z.literal(true, {
+      errorMap: () => ({ message: "You must accept the terms and conditions" }),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,14 +83,14 @@ export default function LoginPage() {
       password: "",
       confirmPassword: "",
       fullName: "",
-      terms: false,
+      terms: true,
     },
   });
 
   async function onLoginSubmit(values: z.infer<typeof loginSchema>) {
     try {
       setIsLoading(true);
-      
+
       await authApi.login({
         email: values.email,
         password: values.password,
@@ -96,7 +106,8 @@ export default function LoginPage() {
       console.error("Login error:", error);
       toast({
         title: "Login failed",
-        description: error.response?.data?.detail || "Invalid email or password",
+        description:
+          error.response?.data?.detail || "Invalid email or password",
         variant: "destructive",
       });
     } finally {
@@ -107,7 +118,7 @@ export default function LoginPage() {
   async function onSignupSubmit(values: z.infer<typeof signupSchema>) {
     try {
       setIsLoading(true);
-      
+
       // Register user
       await authApi.register({
         email: values.email,
@@ -154,9 +165,13 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">FinTrack</h1>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                FinTrack
+              </h1>
             </Link>
-            <p className="text-muted-foreground mt-2">Your personal finance tracker</p>
+            <p className="text-muted-foreground mt-2">
+              Your personal finance tracker
+            </p>
           </div>
 
           <div className="bg-card border border-border rounded-xl shadow-sm p-6 md:p-8">
@@ -173,7 +188,10 @@ export default function LoginPage() {
 
               <TabsContent value="login" className="mt-0">
                 <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                  <form
+                    onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={loginForm.control}
                       name="email"
@@ -221,12 +239,18 @@ export default function LoginPage() {
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
-                          <FormLabel className="text-sm font-normal">Remember me</FormLabel>
+                          <FormLabel className="text-sm font-normal">
+                            Remember me
+                          </FormLabel>
                         </FormItem>
                       )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -273,7 +297,10 @@ export default function LoginPage() {
 
               <TabsContent value="signup" className="mt-0">
                 <Form {...signupForm}>
-                  <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
+                  <form
+                    onSubmit={signupForm.handleSubmit(onSignupSubmit)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={signupForm.control}
                       name="email"
@@ -379,7 +406,11 @@ export default function LoginPage() {
                       )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -14,7 +14,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
             retry: (failureCount, error: any) => {
               // Don't retry on 4xx errors
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              if (
+                error?.response?.status >= 400 &&
+                error?.response?.status < 500
+              ) {
                 return false;
               }
               return failureCount < 3;

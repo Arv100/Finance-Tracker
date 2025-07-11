@@ -36,10 +36,15 @@ export function Navbar() {
           : "bg-transparent"
       )}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <nav
+        className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
+        aria-label="Global"
+      >
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">FinTrack</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              FinTrack
+            </span>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -73,16 +78,20 @@ export function Navbar() {
           </Link>
         </div>
       </nav>
-      
+
       {/* Mobile menu */}
-      <div className={cn(
-        "lg:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300",
-        mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-      )}>
+      <div
+        className={cn(
+          "lg:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur-sm transition-all duration-300",
+          mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
         <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-background px-6 py-6 sm:max-w-sm">
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">FinTrack</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                FinTrack
+              </span>
             </Link>
             <button
               type="button"
@@ -109,7 +118,9 @@ export function Navbar() {
               </div>
               <div className="py-6 flex flex-col gap-2">
                 <Link href="/login">
-                  <Button variant="outline" className="w-full">Log in</Button>
+                  <Button variant="outline" className="w-full">
+                    Log in
+                  </Button>
                 </Link>
                 <Link href="/login?signup=true">
                   <Button className="w-full">Sign up</Button>

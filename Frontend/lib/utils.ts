@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { format, parseISO } from 'date-fns';
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { format, parseISO } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -8,17 +8,20 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(dateString: string): string {
   try {
-    const date = typeof dateString === 'string' ? parseISO(dateString) : new Date(dateString);
-    return format(date, 'MMM d, yyyy');
+    const date =
+      typeof dateString === "string"
+        ? parseISO(dateString)
+        : new Date(dateString);
+    return format(date, "MMM d, yyyy");
   } catch (error) {
     return dateString;
   }
 }
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "INR",
   }).format(amount);
 }
 
@@ -49,7 +52,7 @@ export function getTransactionMockData() {
       date: "2025-03-13T12:00:00Z",
       description: "Grocery Store",
       category: "Food",
-      amount: 120.50,
+      amount: 120.5,
       type: "expense",
       status: "completed",
       account: "Bank of America",
@@ -59,7 +62,7 @@ export function getTransactionMockData() {
       date: "2025-03-12T12:00:00Z",
       description: "Uber",
       category: "Transport",
-      amount: 25.30,
+      amount: 25.3,
       type: "expense",
       status: "completed",
       account: "Citi Bank",
@@ -99,7 +102,7 @@ export function getTransactionMockData() {
       date: "2025-03-08T12:00:00Z",
       description: "Electricity Bill",
       category: "Utilities",
-      amount: 95.20,
+      amount: 95.2,
       type: "expense",
       status: "completed",
       account: "Citi Bank",
@@ -109,7 +112,7 @@ export function getTransactionMockData() {
       date: "2025-03-07T12:00:00Z",
       description: "Mobile Phone Bill",
       category: "Utilities",
-      amount: 55.90,
+      amount: 55.9,
       type: "expense",
       status: "pending",
       account: "Bank of America",
@@ -123,6 +126,6 @@ export function getTransactionMockData() {
       type: "income",
       status: "completed",
       account: "Chase Bank",
-    }
+    },
   ];
 }
