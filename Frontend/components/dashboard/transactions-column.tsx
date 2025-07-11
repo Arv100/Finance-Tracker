@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 import { Transaction } from "@/types/transaction";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -22,6 +23,7 @@ import {
   Trash
 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
+import { transactionApi } from "@/lib/api";
 
 export const transactionsColumns: ColumnDef<Transaction>[] = [
   {
@@ -128,11 +130,15 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
               Copy ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              // onClick={async () => {await transactionApi.update(transaction.id); window.location.reload();}}
+              >
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem className="text-red-600"
+              onClick={async () => {await transactionApi.delete(transaction.id); window.location.reload();}}
+            >
               <Trash className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

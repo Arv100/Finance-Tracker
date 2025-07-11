@@ -351,7 +351,7 @@ async def get_financial_summary(
             percentage=round(percentage, 1),
             color=colors[i % len(colors)]
         ))
-    month_data = {'May':5,'Jun':6,'Jul':7}
+    month_data = {'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12}
     monthly_data = []
     sorted_monthly_data_based_on_months = dict(sorted(monthly_data_based_on_months.items(), key=lambda x : month_data[x[0]]))
     print(sorted_monthly_data_based_on_months)
