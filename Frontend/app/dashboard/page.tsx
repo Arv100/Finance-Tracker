@@ -20,14 +20,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/dashboard/transaction-form";
+import type { Transaction } from "@/lib/api";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -97,10 +98,19 @@ export default function DashboardPage() {
     handleRefresh();
   };
 
-    const handleTransactionAdded = () => {
+  const handleTransactionAdded = () => {
     setShowForm(false);
+    setSelectedTransaction(null);
     handleRefresh();
   };
+
+  const handleTransactionUpdated = async () => {
+  setShowForm(false);
+  setSelectedTransaction(null);
+  await refetchTransactions(); 
+  toast({ title: "Transaction updated successfully." });
+};
+
 
   if (transactionsError || statsError || summaryError) {
     return (
@@ -140,20 +150,16 @@ export default function DashboardPage() {
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
               </Button>
-              <Dialog open={showForm} onOpenChange={setShowForm}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Transaction
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Add New Transaction</DialogTitle>
-                  </DialogHeader>
-                  <TransactionForm onSuccess={handleTransactionAdded} />
-                </DialogContent>
-              </Dialog>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedTransaction(null);
+                  setShowForm(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Transaction
+              </Button>
               <FileUploader onUploadSuccess={handleUploadSuccess} />
             </div>
           </div>
@@ -201,13 +207,43 @@ export default function DashboardPage() {
               </div>
             ) : (
               <DataTable
-                columns={transactionsColumns}
-                data={transactions}
-              />
+  columns={transactionsColumns({
+    onEdit: (txn) => {
+      setSelectedTransaction(txn);
+      setShowForm(true);
+    },
+    onDelete: async () => {
+      await refetchTransactions();
+    }
+  })}
+  data={transactions}
+/>
+
             )}
           </div>
         </div>
       </main>
+
+      {/* Reusable Form Dialog for Create/Edit */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedTransaction ? "Edit Transaction" : "Add New Transaction"}
+            </DialogTitle>
+          </DialogHeader>
+          <TransactionForm
+  initialValues={selectedTransaction || undefined}
+  mode={selectedTransaction ? "edit" : "create"}
+  onSuccess={selectedTransaction ? handleTransactionUpdated : handleTransactionAdded}
+  onClose={() => {
+    setShowForm(false);
+    setSelectedTransaction(null);
+  }}
+/>
+
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

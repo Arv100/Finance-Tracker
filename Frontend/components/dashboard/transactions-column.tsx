@@ -1,10 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
-import { Transaction } from "@/types/transaction";
+import { Transaction } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,19 +12,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   ArrowDown,
   ArrowUp,
   Check,
   Copy,
   Edit,
   MoreHorizontal,
-  Trash
+  Trash,
 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { transactionApi } from "@/lib/api";
 
-export const transactionsColumns: ColumnDef<Transaction>[] = [
+
+
+export const transactionsColumns = ({
+  onEdit,
+  onDelete
+}: {
+  onEdit: (transaction: Transaction) => void;
+  onDelete: () => Promise<void>;
+}): ColumnDef<Transaction>[] => [
+
   {
     accessorKey: "date",
     header: "Date",
@@ -59,7 +67,11 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     accessorKey: "account",
     header: "Account",
     cell: ({ row }) => {
-      return <div className="text-muted-foreground">{row.getValue("account")}</div>;
+      return (
+        <div className="text-muted-foreground">
+          {row.getValue("account")}
+        </div>
+      );
     },
   },
   {
@@ -68,9 +80,13 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
       const type = row.getValue("type") as "income" | "expense";
-      
+
       return (
-        <div className={`flex items-center ${type === "income" ? "text-green-500" : "text-red-500"}`}>
+        <div
+          className={`flex items-center ${
+            type === "income" ? "text-green-500" : "text-red-500"
+          }`}
+        >
           {type === "income" ? (
             <ArrowUp className="mr-1 h-4 w-4" />
           ) : (
@@ -86,9 +102,12 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      
+
       return (
-        <Badge variant={status === "completed" ? "success" : "warning"} className="capitalize">
+        <Badge
+          variant={status === "completed" ? "success" : "warning"}
+          className="capitalize"
+        >
           {status === "completed" && <Check className="mr-1 h-3 w-3" />}
           {status}
         </Badge>
@@ -100,9 +119,12 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     header: "Type",
     cell: ({ row }) => {
       const type = row.getValue("type") as string;
-      
+
       return (
-        <Badge variant={type === "income" ? "success" : "destructive"} className="capitalize">
+        <Badge
+          variant={type === "income" ? "success" : "destructive"}
+          className="capitalize"
+        >
           {type === "income" ? "Income" : "Expense"}
         </Badge>
       );
@@ -112,12 +134,11 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     id: "actions",
     cell: ({ row }) => {
       const transaction = row.original;
-      
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -130,18 +151,21 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
               Copy ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              // onClick={async () => {await transactionApi.update(transaction.id); window.location.reload();}}
-              >
+            <DropdownMenuItem onClick={() => onEdit(transaction)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600"
-              onClick={async () => {await transactionApi.delete(transaction.id); window.location.reload();}}
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
+            <DropdownMenuItem
+  className="text-red-600"
+  onClick={async () => {
+    await transactionApi.delete(transaction.id);
+    await onDelete();
+  }}
+>
+  <Trash className="mr-2 h-4 w-4" />
+  Delete
+</DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
       );
