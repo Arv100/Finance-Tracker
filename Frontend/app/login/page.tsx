@@ -165,9 +165,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent" style={{ paddingLeft: '10px' }}>
                 FinTrack
-              </h1>
+                </h1>
             </Link>
             <p className="text-muted-foreground mt-2">
               Your personal finance tracker
@@ -269,13 +269,13 @@ export default function LoginPage() {
                       <Separator />
                     </div>
                     <div className="relative flex justify-center text-xs">
-                      <span className="bg-card px-2 text-muted-foreground">
+                      {/* <span className="bg-card px-2 text-muted-foreground">
                         Or continue with
-                      </span>
+                      </span> */}
                     </div>
                   </div>
 
-                  <div className="mt-6 grid grid-cols-3 gap-3">
+                  {/* <div className="mt-6 grid grid-cols-3 gap-3">
                     {["Google", "Apple", "Microsoft"].map((provider) => (
                       <Button
                         key={provider}
@@ -291,7 +291,7 @@ export default function LoginPage() {
                         />
                       </Button>
                     ))}
-                  </div>
+                  </div> */}
                 </div>
               </TabsContent>
 
@@ -377,31 +377,7 @@ export default function LoginPage() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-2 space-y-0">
                           <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
                           </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm font-normal">
-                              I agree to the{" "}
-                              <Link
-                                href="#"
-                                className="text-primary hover:underline underline-offset-4"
-                              >
-                                terms of service
-                              </Link>{" "}
-                              and{" "}
-                              <Link
-                                href="#"
-                                className="text-primary hover:underline underline-offset-4"
-                              >
-                                privacy policy
-                              </Link>
-                              .
-                            </FormLabel>
-                            <FormMessage />
-                          </div>
                         </FormItem>
                       )}
                     />
@@ -423,7 +399,7 @@ export default function LoginPage() {
                   </form>
                 </Form>
 
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <Separator />
@@ -452,7 +428,7 @@ export default function LoginPage() {
                       </Button>
                     ))}
                   </div>
-                </div>
+                </div> */}
               </TabsContent>
             </Tabs>
           </div>
