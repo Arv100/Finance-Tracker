@@ -1,2 +1,11 @@
 Date,Description,Category,Account,amount,Type
-09-07-2025,Refund,Refun,CC,2500,Income
+19-10-2025,Refund for train ticket,Refund,SBI,2500,Income
+20-10-2025,Grocery shopping at Walmart,Groceries,ICICI,-150.75,Expense
+21-10-2025,Monthly salary from ABC Corp,Salary,SBI,5000,Income
+22-10-2025,Dinner at Italian Bistro,Food & Dining,SBI,-75.50,Expense
+23-10-2025,Electricity bill payment,Utilities,AXIS,-120.00,Expense
+24-10-2025,Freelance project payment,Freelance,SBI,800,Income
+25-10-2025,Online course purchase,Education,ICICI,-200.00,Expense
+26-10-2025,Car maintenance service,Auto,SBI,-300.00,Expense
+27-10-2025,Dividend from investments,Investments,AXIS,150.00,Income
+29-10-2025,Bookstore purchase,Books,ICICI,-45.00,Expense

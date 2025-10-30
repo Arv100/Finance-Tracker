@@ -6,6 +6,7 @@ import pandas as pd
 import io
 import uuid
 from datetime import datetime, timedelta
+from contextlib import asynccontextmanager
 
 # Local imports
 from database import (
@@ -41,13 +42,26 @@ from schemas import (
     FileUploadResponse,
     CategoryBreakdown,
     MonthlyData,
+    CategoryResponse, 
+    get_all_categories, 
+    get_category_color
 )
 
-# Create FastAPI app
+
+
+# Create FastAPI app using lifespan for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup actions
+    create_tables()
+    yield
+    # Shutdown actions (if any) can be added here
+
 app = FastAPI(
     title="FinTrack API",
     description="Personal Finance Tracker API with JWT Authentication",
     version="2.0.0",
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -58,12 +72,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Create database tables on startup
-@app.on_event("startup")
-def startup_event():
-    create_tables()
 
 
 # Health check
@@ -205,6 +213,27 @@ async def update_current_user(
     db.refresh(current_user)
     return current_user
 
+@app.get("/api/categories")
+async def get_categories(
+    current_user: UserModel = Depends(get_current_active_user),
+):
+    """Get all available categories for transactions."""
+    return get_all_categories()
+
+@app.get("/api/categories/{transaction_type}")
+async def get_categories_by_type(
+    transaction_type: str,
+    current_user: UserModel = Depends(get_current_active_user),
+):
+    """Get categories filtered by transaction type (income or expense)."""
+    if transaction_type not in ["income", "expense"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Transaction type must be 'income' or 'expense'"
+        )
+    
+    all_categories = get_all_categories()
+    return all_categories[transaction_type]
 
 # Transaction endpoints
 @app.get("/api/transactions", response_model=List[TransactionResponse])
@@ -373,77 +402,66 @@ async def get_financial_summary(
     total_expenses = sum(t.amount for t in transactions if t.type.value == "expense")
     balance = total_income - total_expenses
 
-    # Calculate category breakdown
+    # Calculate category breakdown and monthly data
     category_totals = {}
-    monthly_data_based_on_months = {}
+    monthly_data_dict = {}
+    
     for transaction in transactions:
-        if transaction.date.strftime("%b") not in monthly_data_based_on_months:
-            monthly_data_based_on_months[transaction.date.strftime("%b")] = {
-                "expense": [],
-                "income": [],
+        # Get month abbreviation
+        month = transaction.date.strftime("%b")
+        
+        # Initialize month data if not exists
+        if month not in monthly_data_dict:
+            monthly_data_dict[month] = {
+                "expense": 0,
+                "income": 0,
             }
 
-        if transaction.amount < 0:
-            monthly_data_based_on_months[transaction.date.strftime("%b")][
-                "expense"
-            ].append(transaction.amount)
-        else:
-            monthly_data_based_on_months[transaction.date.strftime("%b")][
-                "income"
-            ].append(transaction.amount)
-
+        # Add transaction to appropriate category based on type field
         if transaction.type.value == "expense":
+            monthly_data_dict[month]["expense"] += transaction.amount
+            
+            # Track category totals for expenses only
             category = transaction.category
             category_totals[category] = (
                 category_totals.get(category, 0) + transaction.amount
             )
+        elif transaction.type.value == "income":
+            monthly_data_dict[month]["income"] += transaction.amount
 
-    colors = [
-        "hsl(var(--chart-1))",
-        "hsl(var(--chart-2))",
-        "hsl(var(--chart-3))",
-        "hsl(var(--chart-4))",
-        "hsl(var(--chart-5))",
-    ]
-
+    # Create category breakdown with proper colors
     category_summary = []
-    for i, (category, amount) in enumerate(category_totals.items()):
+    for category, amount in category_totals.items():
         percentage = (
-            (abs(amount) / abs(total_expenses) * 100) if abs(total_expenses) > 0 else 0
+            (amount / total_expenses * 100) if total_expenses > 0 else 0
         )
         category_summary.append(
             CategoryBreakdown(
                 category=category,
-                amount=abs(amount),
+                amount=amount,
                 percentage=round(percentage, 1),
-                color=colors[i % len(colors)],
+                color=get_category_color(category),  # Use proper category color
             )
         )
-    month_data = {
-        "Jan": 1,
-        "Feb": 2,
-        "Mar": 3,
-        "Apr": 4,
-        "May": 5,
-        "Jun": 6,
-        "Jul": 7,
-        "Aug": 8,
-        "Sep": 9,
-        "Oct": 10,
-        "Nov": 11,
-        "Dec": 12,
+    
+    # Sort monthly data by month order
+    month_order = {
+        "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+        "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12,
     }
-    monthly_data = []
-    sorted_monthly_data_based_on_months = dict(
-        sorted(monthly_data_based_on_months.items(), key=lambda x: month_data[x[0]])
+    
+    sorted_monthly_data = dict(
+        sorted(monthly_data_dict.items(), key=lambda x: month_order[x[0]])
     )
-    print(sorted_monthly_data_based_on_months)
-    for month, data in sorted_monthly_data_based_on_months.items():
+    
+    # Create monthly data list
+    monthly_data = []
+    for month, data in sorted_monthly_data.items():
         monthly_data.append(
             MonthlyData(
                 month=month,
-                income=sum(data["income"]),
-                expenses=abs(sum(data["expense"])),
+                income=data["income"],
+                expenses=data["expense"],
             )
         )
 
@@ -454,8 +472,6 @@ async def get_financial_summary(
         category_summary=category_summary,
         monthly_data=monthly_data,
     )
-
-
 # File upload endpoint
 @app.post("/api/upload", response_model=FileUploadResponse)
 async def upload_file(

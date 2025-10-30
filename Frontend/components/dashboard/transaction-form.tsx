@@ -4,9 +4,55 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { transactionApi } from "@/lib/api";
 import type { Transaction, TransactionCreate } from "@/lib/api";
+
+// Predefined categories
+const EXPENSE_CATEGORIES = [
+  "Food & Dining",
+  "Groceries",
+  "Housing",
+  "Rent/Mortgage",
+  "Utilities",
+  "Transportation",
+  "Gas/Fuel",
+  "Public Transport",
+  "Healthcare",
+  "Insurance",
+  "Entertainment",
+  "Shopping",
+  "Clothing",
+  "Personal Care",
+  "Education",
+  "Travel",
+  "Subscriptions",
+  "Gifts & Donations",
+  "Fees & Charges",
+  "Taxes",
+  "Other Expense",
+];
+
+const INCOME_CATEGORIES = [
+  "Salary",
+  "Freelance",
+  "Business",
+  "Investment",
+  "Rental Income",
+  "Dividends",
+  "Interest",
+  "Bonus",
+  "Gift",
+  "Refund",
+  "Other Income",
+];
 
 interface Props {
   initialValues?: Partial<Transaction>;
@@ -32,6 +78,7 @@ export function TransactionForm({
   });
 
   const [loading, setLoading] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState(EXPENSE_CATEGORIES);
 
   useEffect(() => {
     if (initialValues) {
@@ -47,6 +94,20 @@ export function TransactionForm({
     }
   }, [initialValues]);
 
+  // Update available categories when type changes
+  useEffect(() => {
+    if (formData.type === "expense") {
+      setAvailableCategories(EXPENSE_CATEGORIES);
+    } else {
+      setAvailableCategories(INCOME_CATEGORIES);
+    }
+    
+    // Reset category if it doesn't exist in new category list
+    if (!availableCategories.includes(formData.category)) {
+      setFormData((prev) => ({ ...prev, category: "" }));
+    }
+  }, [formData.type]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -54,6 +115,13 @@ export function TransactionForm({
     setFormData((prev) => ({
       ...prev,
       [name]: name === "amount" ? +value : value,
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
@@ -85,6 +153,22 @@ export function TransactionForm({
     <form onSubmit={handleSubmit} className="space-y-4 pt-2">
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
+          <Label htmlFor="type">Type</Label>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => handleSelectChange("type", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="expense">Expense</SelectItem>
+              <SelectItem value="income">Income</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
           <Label htmlFor="date">Date</Label>
           <Input
             type="date"
@@ -94,15 +178,38 @@ export function TransactionForm({
             required
           />
         </div>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
           <Label htmlFor="amount">Amount</Label>
           <Input
             type="number"
             name="amount"
+            step="0.01"
             value={formData.amount}
             onChange={handleChange}
             required
           />
+        </div>
+
+        <div>
+          <Label htmlFor="category">Category</Label>
+          <Select
+            value={formData.category}
+            onValueChange={(value) => handleSelectChange("category", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {availableCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -119,16 +226,6 @@ export function TransactionForm({
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
-          <Label htmlFor="category">Category</Label>
-          <Input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
           <Label htmlFor="account">Account</Label>
           <Input
             type="text"
@@ -138,32 +235,21 @@ export function TransactionForm({
             required
           />
         </div>
-      </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="type">Type</Label>
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-          >
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
-        </div>
         <div>
           <Label htmlFor="status">Status</Label>
-          <select
-            name="status"
+          <Select
             value={formData.status}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+            onValueChange={(value) => handleSelectChange("status", value)}
           >
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

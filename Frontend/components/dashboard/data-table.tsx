@@ -30,6 +30,44 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// All available categories
+const ALL_CATEGORIES = [
+  // Expense categories
+  "Food & Dining",
+  "Groceries",
+  "Housing",
+  "Rent/Mortgage",
+  "Utilities",
+  "Transportation",
+  "Gas/Fuel",
+  "Public Transport",
+  "Healthcare",
+  "Insurance",
+  "Entertainment",
+  "Shopping",
+  "Clothing",
+  "Personal Care",
+  "Education",
+  "Travel",
+  "Subscriptions",
+  "Gifts & Donations",
+  "Fees & Charges",
+  "Taxes",
+  "Other Expense",
+  // Income categories
+  "Salary",
+  "Freelance",
+  "Business",
+  "Investment",
+  "Rental Income",
+  "Dividends",
+  "Interest",
+  "Bonus",
+  "Gift",
+  "Refund",
+  "Other Income",
+];
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -61,14 +99,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-4 gap-4">
         <Input
           placeholder="Search all transactions..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="max-w-sm"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Select
             value={(table.getColumn("type")?.getFilterValue() as string) || ""}
             onValueChange={(value) =>
@@ -97,20 +135,30 @@ export function DataTable<TData, TValue>({
                 ?.setFilterValue(value === "all" ? "" : value)
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-60">
               <SelectItem value="all">All categories</SelectItem>
-              <SelectItem value="Food">Food</SelectItem>
-              <SelectItem value="Housing">Housing</SelectItem>
-              <SelectItem value="Transport">Transport</SelectItem>
-              <SelectItem value="Entertainment">Entertainment</SelectItem>
-              <SelectItem value="Utilities">Utilities</SelectItem>
-              <SelectItem value="Salary">Salary</SelectItem>
-              <SelectItem value="Investment">Investment</SelectItem>
+              {ALL_CATEGORIES.sort().map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setGlobalFilter("");
+              table.getColumn("type")?.setFilterValue("");
+              table.getColumn("category")?.setFilterValue("");
+            }}
+          >
+            Clear Filters
+          </Button>
         </div>
       </div>
       <div className="rounded-md border">
