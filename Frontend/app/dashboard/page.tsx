@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Plus, RefreshCw } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
-import { FileUploader } from "@/components/dashboard/file-uploader";
+import { EnhancedFileUploader } from "@/components/dashboard/file-uploader";
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
 import { DataTable } from "@/components/dashboard/data-table";
@@ -163,7 +163,7 @@ export default function DashboardPage() {
                 <Plus className="mr-2 h-4 w-4" />
                 Add Transaction
               </Button>
-              <FileUploader onUploadSuccess={handleUploadSuccess} />
+              <EnhancedFileUploader onUploadSuccess={handleUploadSuccess} />
             </div>
           </div>
 

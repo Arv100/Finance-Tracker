@@ -44,10 +44,16 @@ from schemas import (
     MonthlyData,
     CategoryResponse, 
     get_all_categories, 
-    get_category_color
+    get_category_color,
+    BulkUploadResponse,
+    TransactionPreview
 )
 
-
+from categorization import (
+    bulk_categorize_transactions, 
+    auto_categorize_transaction,
+    get_category_suggestions
+)
 
 # Create FastAPI app using lifespan for startup/shutdown events
 @asynccontextmanager
@@ -528,6 +534,144 @@ async def upload_file(
             detail=f"Error processing file: {str(e)}",
         )
 
+@app.post("/api/upload/preview", response_model=BulkUploadResponse)
+async def preview_upload(
+    file: UploadFile = File(...),
+    current_user: UserModel = Depends(get_current_active_user),
+):
+    """
+    Preview uploaded file with auto-categorization before saving.
+    Returns categorized transactions for user review.
+    """
+    if not file.filename.endswith((".csv", ".xlsx", ".xls")):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only CSV and Excel files are supported",
+        )
+
+    try:
+        contents = await file.read()
+
+        # Parse file
+        if file.filename.endswith(".csv"):
+            df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+        else:
+            df = pd.read_excel(io.BytesIO(contents))
+
+        # Process and categorize transactions
+        transactions_data = []
+        for _, row in df.iterrows():
+            # Parse amount - handle both positive/negative and separate debit/credit columns
+            amount = 0
+            if 'amount' in row:
+                amount = float(row['amount'])
+            elif 'debit' in row and 'credit' in row:
+                amount = float(row.get('debit', 0) or 0) - float(row.get('credit', 0) or 0)
+            elif 'debit' in row:
+                amount = -abs(float(row.get('debit', 0) or 0))
+            elif 'credit' in row:
+                amount = abs(float(row.get('credit', 0) or 0))
+            
+            # Parse date
+            date_str = str(row.get('date', ''))
+            try:
+                parsed_date = pd.to_datetime(date_str)
+                date = parsed_date.strftime('%Y-%m-%d')
+            except:
+                date = datetime.now().strftime('%Y-%m-%d')
+            
+            transactions_data.append({
+                "id": str(uuid.uuid4()),
+                "date": date,
+                "description": str(row.get("description", "Imported transaction")),
+                "amount": abs(amount),
+                "merchant": str(row.get("merchant", row.get("account", ""))),
+                "account": str(row.get("account", "Imported Account")),
+            })
+
+        # Auto-categorize all transactions
+        categorized_transactions = bulk_categorize_transactions(transactions_data)
+        
+        # Count transactions that need review
+        needs_review = sum(1 for t in categorized_transactions if t["needs_review"])
+
+        return BulkUploadResponse(
+            message=f"Preview ready: {len(categorized_transactions)} transactions categorized",
+            total_count=len(categorized_transactions),
+            preview=categorized_transactions,
+            needs_review_count=needs_review,
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error processing file: {str(e)}",
+        )
+
+
+@app.post("/api/upload/confirm", response_model=FileUploadResponse)
+async def confirm_upload(
+    transactions: List[TransactionPreview],
+    current_user: UserModel = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Save the reviewed and confirmed transactions to database.
+    """
+    try:
+        processed_count = 0
+        
+        for txn in transactions:
+            # Use the user-confirmed category or suggested category
+            transaction = TransactionModel(
+                id=txn.id,
+                user_id=current_user.id,
+                date=datetime.strptime(txn.date, '%Y-%m-%d').date(),
+                description=txn.description,
+                category=txn.suggested_category,  # User can modify this before confirming
+                amount=abs(txn.amount),
+                type=txn.suggested_type,
+                status="completed",
+                account=txn.account,
+            )
+            db.add(transaction)
+            processed_count += 1
+
+        db.commit()
+
+        return FileUploadResponse(
+            message=f"Successfully imported {processed_count} transactions",
+            processed_count=processed_count,
+        )
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error saving transactions: {str(e)}",
+        )
+
+
+@app.get("/api/categorize/suggest")
+async def suggest_categories(
+    description: str,
+    current_user: UserModel = Depends(get_current_active_user),
+):
+    """
+    Get category suggestions for a given description.
+    Useful for manual categorization assistance.
+    """
+    from categorization import get_category_suggestions
+    
+    suggestions = get_category_suggestions(description)
+    
+    return {
+        "description": description,
+        "suggestions": [
+            {"category": cat, "confidence": conf}
+            for cat, conf in suggestions
+        ]
+    }
 
 if __name__ == "__main__":
     import uvicorn

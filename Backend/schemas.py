@@ -283,3 +283,47 @@ class DashboardStats(BaseModel):
 class FileUploadResponse(BaseModel):
     message: str
     processed_count: int
+
+# Add these to your schemas.py file
+
+from pydantic import BaseModel
+from typing import List, Optional
+
+class TransactionPreview(BaseModel):
+    """Transaction preview with auto-categorization"""
+    id: str
+    date: str
+    description: str
+    amount: float
+    suggested_category: str
+    suggested_type: str
+    confidence: float
+    needs_review: bool
+    account: str
+    merchant: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class BulkUploadResponse(BaseModel):
+    """Response for bulk upload preview"""
+    message: str
+    total_count: int
+    preview: List[TransactionPreview]
+    needs_review_count: int
+
+    class Config:
+        from_attributes = True
+
+
+class CategorySuggestion(BaseModel):
+    """Category suggestion with confidence score"""
+    category: str
+    confidence: float
+
+
+class CategorySuggestionsResponse(BaseModel):
+    """Response for category suggestions"""
+    description: str
+    suggestions: List[CategorySuggestion]
